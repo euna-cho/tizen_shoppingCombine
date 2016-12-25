@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+<link rel="stylesheet" href="css/style.css"></head>
+<body onload="cart_display()">
+
+<ul class="topnav" id="myTopnav">
+  <li><a href="index.html">쇼핑몰</a></li>
+  <li><a href="whole.html">전체상품</a></li>
+  <li><a class="active" href="cart.html">장바구니</a></li>
+  <li><a href="about.html">about</a></li>
+</ul>
+
+
+<div style="padding-left:16px" class="container" id="cartpage">
+  <h2><span class="glyphicon glyphicon-shopping-cart"></span> &nbsp Cart Lists</h2>
+  <p><span style="float:left;"> 장바구니 목록 </span>
+  <br></p>
+  
+  <p id="p-ajax-res" >비어있음</p>
+
+</div>
+
+<script>
+var i = 0;
+var c_i = 0;
+var tok;
+
+var malls = [];
+var names = [];
+var prodLinks = [];
+var imgLinks = [];
+var prices = [];
+
+var c_malls = [];
+var c_names = [];
+var c_prodLinks = [];
+var c_imgLinks = [];
+var c_prices = [];	  
+var jw_str = [];
+
+	
+function myFunction() {
+    var x = document.getElementById("myTopnav");
+    if (x.className === "topnav") {
+        x.className += " responsive";
+    } else {
+        x.className = "topnav";
+    }
+}
+function retrieveFromLocal(){
+	c_i = JSON.parse(localStorage.getItem("c_count"));
+    c_malls = JSON.parse(localStorage.getItem("c_localMalls"));
+	c_names = JSON.parse(localStorage.getItem("c_localNames"));
+    c_prodLinks = JSON.parse(localStorage.getItem("c_localProdLinks"));
+    c_imgLinks = JSON.parse(localStorage.getItem("c_localImgLinks"));
+    c_prices = JSON.parse(localStorage.getItem("c_localPrices"));
+}
+function saveToLocal(){
+    localStorage.setItem('c_count', JSON.stringify(c_i));
+    localStorage.setItem('c_localMalls', JSON.stringify(c_malls));
+    localStorage.setItem('c_localNames', JSON.stringify(c_names));
+    localStorage.setItem('c_localProdLinks', JSON.stringify(c_prodLinks));
+    localStorage.setItem('c_localImgLinks', JSON.stringify(c_imgLinks));
+    localStorage.setItem('c_localPrices', JSON.stringify(c_prices));
+}
+
+function cart_display(){
+	retrieveFromLocal();
+
+	var contentStr="";
+	for(var idx=0; idx<c_i; idx++) {
+		contentStr += "<div class='img'> <a target='_blank' href='"
+	 	+c_prodLinks[idx]
+	 	+"'> <img src='"
+	 	+c_imgLinks[idx]
+	 	+"' width='300' height='200'> </a> <div class='desc'> <b>"
+	 	+c_names[idx]
+	 	+"</b><br>"
+	 	+c_prices[idx]
+	 	+"원<br>"
+	 	+"<div class='home'><span class='glyphicon glyphicon-home'></span>&nbsp "
+	 	+c_malls[idx]
+	 	+"<div class = 'deleteCart' onclick= 'deleteItemToCart("+idx+")'> delete from Cart </div></div></div></div>";
+	 }
+	 if(c_i!=0)
+		 $("#p-ajax-res").html(contentStr);
+	
+	saveToLocal();
+}
+
+
+
+function deleteItemToCart(x){
+	c_malls.splice(x, 1);
+	c_names.splice(x, 1);
+	c_prodLinks.splice(x, 1);
+	c_imgLinks.splice(x, 1);
+	c_prices.splice(x, 1);
+	
+    c_i = c_i - 1;
+    saveToLocal();
+    cart_display();
+}
+
+</script>
+
+</body>
+</html>

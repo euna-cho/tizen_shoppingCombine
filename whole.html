@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script>
+	var i = 0;
+	var c_i = 0;
+	var tok;
+	
+	var malls = [];
+	var names = [];
+	var prodLinks = [];
+	var imgLinks = [];
+	var prices = [];
+	
+	var c_malls = [];
+	var c_names = [];
+	var c_prodLinks = [];
+	var c_imgLinks = [];
+	var c_prices = [];	  
+	var jw_str = [];
+	
+	$.ajax({
+		url: "http://cspro.sogang.ac.kr/~cse20131608/michyeora.html",
+		contentType: "application/text; charset=UTF-8",
+		DataType:"HTML",
+		success :
+				function(res) {
+				
+					
+					
+					var str=$(res).text();
+					var splitStr=str.split("|");
+	
+					var contentStr="";
+					for(var idx=0; idx<splitStr.length-1; idx+=4) {
+						var localStr='michyeora|'+splitStr[idx]+'|'+splitStr[idx+1]+'|'+splitStr[idx+2]+'|'+splitStr[idx+3];
+					 	jw_str.push(localStr);	addItem();saveToLocal();
+					 }
+				},		
+		error :
+			function(err) {
+				$("#p-ajax-res").html(JSON.stringify(err));}
+		});
+		
+		$.ajax({
+		url: "http://cspro.sogang.ac.kr/~cse20131608/66girls.html",
+		contentType: "application/text; charset=UTF-8",
+		DataType:"HTML",
+		success :
+				function(res) {
+					var str=$(res).text();
+					var splitStr=str.split("|");
+			
+					var contentStr="";
+					for(var idx=0; idx<splitStr.length-1; idx+=4) {
+						var localStr='66girls|'+splitStr[idx]+'|'+splitStr[idx+1]+'|'+splitStr[idx+2]+'|'+splitStr[idx+3];
+					 	jw_str.push(localStr);	addItem();saveToLocal();
+
+					 }
+				},		
+		error :
+			function(err) {
+				$("#p-ajax-res").html(JSON.stringify(err));}  
+		});
+		
+		
+		$.ajax({
+		url: "http://cspro.sogang.ac.kr/~cse20131608/withyoon.html",
+		contentType: "application/text; charset=UTF-8",
+		DataType:"HTML",
+		success :
+				function(res) {
+					var str=$(res).text();
+					var splitStr=str.split("|");
+	
+					var contentStr="";
+					for(var idx=0; idx<splitStr.length-1; idx+=4) {
+						var localStr='withyoon|'+splitStr[idx]+'|'+splitStr[idx+1]+'|'+splitStr[idx+2]+'|'+splitStr[idx+3];	
+					 	jw_str.push(localStr);	addItem();saveToLocal();
+					 }
+					 display();
+				},		
+		error :
+			function(err) {
+				$("#p-ajax-res").html(JSON.stringify(err));}
+		});
+		
+	</script>
+<link rel="stylesheet" href="css/style.css"></head>
+<body onload='retrieveFromLocal()'>
+
+<ul class="topnav" id="myTopnav">
+  <li><a href="index.html">쇼핑몰</a></li>
+  <li><a class="active" href="whole.html">전체상품</a></li>
+  <li><a href="cart.html">장바구니</a></li>
+  <li><a href="about.html">about</a></li>
+</ul>
+
+
+<div style="padding-left:16px" class="container" id="wholepage">
+  <h2><span class='glyphicon glyphicon-th-search'></span>&nbsp Whole products</h2>
+  <p><span style="float:left;"> 전체상품목록 </span> 
+  <span style="float:right;"> Sort by:
+  <select id="myselect" style="" onchange="sortFunc()">
+	<option value="mall" selected>Shopping Mall</option>
+	<option value="name">Name</option>
+	<option value="price">Price</option>
+  </select></span> 
+  <br></p>
+  <p id="p-ajax-res" onload='display'></p>
+
+</div>
+
+<script>
+function myFunction() {
+    var x = document.getElementById("myTopnav");
+    if (x.className === "topnav") {
+        x.className += " responsive";
+    } else {
+        x.className = "topnav";
+    }
+}
+
+$.download('memo.txt','find=commoncode','post' );
+function sortFunc(){
+	  	var x = document.getElementById("myselect").value;
+	  	if( x == "mall" ) {
+			sortByMallIncr();
+		}
+	  	if( x == "price" ) {
+			sortByPriceIncr();
+		}
+		if( x == "name" ) {
+			sortByNameIncr();
+		}
+}
+
+function init(){
+	jw_str = [];
+	i = 0;
+    c_i = 0;
+    malls = [];
+ 	names = [];
+ 	prodLinks = [];
+ 	imgLinks = [];
+ 	prices = [];
+
+	c_malls = [];
+	c_names = [];
+	c_prodLinks = [];
+ 	c_imgLinks = [];
+	c_prices = [];
+    
+	localStorage.removeItem('count'); 
+    localStorage.removeItem('localMalls'); 
+	localStorage.removeItem('localNames'); 
+    localStorage.removeItem('localProdLinks'); 
+    localStorage.removeItem('localImgLinks'); 
+    localStorage.removeItem('localPrices'); 
+    
+    localStorage.removeItem('c_count'); 
+    localStorage.removeItem('c_localMalls'); 
+	localStorage.removeItem('c_localNames'); 
+    localStorage.removeItem('c_localProdLinks'); 
+    localStorage.removeItem('c_localImgLinks'); 
+    localStorage.removeItem('c_localPrices');
+}
+
+function saveToLocal(){
+    
+    localStorage.setItem('count', JSON.stringify(i));
+    localStorage.setItem('localMalls', JSON.stringify(malls));
+    localStorage.setItem('localNames', JSON.stringify(names));
+    localStorage.setItem('localProdLinks', JSON.stringify(prodLinks));
+    localStorage.setItem('localImgLinks', JSON.stringify(imgLinks));
+    localStorage.setItem('localPrices', JSON.stringify(prices));
+}
+
+function c_saveToLocal(){
+    localStorage.setItem('c_count', JSON.stringify(c_i));
+    localStorage.setItem('c_localMalls', JSON.stringify(c_malls));
+    localStorage.setItem('c_localNames', JSON.stringify(c_names));
+    localStorage.setItem('c_localProdLinks', JSON.stringify(c_prodLinks));
+    localStorage.setItem('c_localImgLinks', JSON.stringify(c_imgLinks));
+    localStorage.setItem('c_localPrices', JSON.stringify(c_prices));
+}
+
+function display(){
+	var contentStr="";
+	for(var idx=0; idx<i; idx++) {
+		contentStr += "<div class='img'> <a target='_blank' href='"
+	 	+prodLinks[idx]
+	 	+"'> <img src='"
+	 	+imgLinks[idx]
+	 	+"' width='300' height='200'> </a> <div class='desc'> <b>"
+	 	+names[idx]
+	 	+"</b><br>"
+	 	+prices[idx]
+	 	+"원<br>"
+	 	+"<div class='home'><span class='glyphicon glyphicon-home'></span>&nbsp "
+	 	+malls[idx]
+	 	+"<div class = 'intoCart' onclick='addItemToCart("+idx+")'> Add to Cart </div></div></div></div>";
+	 }
+	$("#p-ajax-res").html(contentStr);
+}
+
+
+function retrieveFromLocal(){
+	if( localStorage.c_count ){
+		c_i = JSON.parse(localStorage.getItem("c_count"));
+	    c_malls = JSON.parse(localStorage.getItem("c_localMalls"));
+		c_names = JSON.parse(localStorage.getItem("c_localNames"));
+	    c_prodLinks = JSON.parse(localStorage.getItem("c_localProdLinks"));
+	    c_imgLinks = JSON.parse(localStorage.getItem("c_localImgLinks"));
+	    c_prices = JSON.parse(localStorage.getItem("c_localPrices"));
+    }
+}
+function addItem() {
+	var j;
+	var tm = [];
+    tok = jw_str[i].split('|')
+    malls.push(tok[0]);
+    names.push(tok[1]);
+    prodLinks.push(tok[2]);
+    imgLinks.push(tok[3]);
+    prices.push(tok[4]);
+    
+    prices[i] = prices[i].substring(0, prices[i].length - 1);
+    prices[i] = prices[i].replace(',', '');
+    prices[i] *= 1;
+    i = i + 1;  
+}
+function addItemToCart(x){
+    c_malls[c_i] = malls[x];
+    c_names[c_i] = names[x];
+    c_prodLinks[c_i] = prodLinks[x];
+    c_imgLinks[c_i] = imgLinks[x];
+    c_prices[c_i] = prices[x];
+
+    c_i = c_i + 1;
+    c_saveToLocal();
+}
+function sortByMallIncr() {
+	var a;
+    var b;
+    var t;
+    
+    for( a = 0 ; a < i - 1 ; a = a + 1 ){
+    	for( b = a + 1 ; b < i ; b = b + 1 ){
+        	if( malls[a] > malls[b] ){
+        		t = malls[a];	malls[a] = malls[b];	malls[b] = t;
+          	  	t = names[a];	names[a] = names[b];	names[b] = t;
+           		t = prodLinks[a];	prodLinks[a] = prodLinks[b];	prodLinks[b] = t;
+            	t = imgLinks[a];	imgLinks[a] = imgLinks[b];	imgLinks[b] = t;
+           		t = prices[a];	prices[a] = prices[b];	prices[b] = t;
+            }
+        }
+    }
+    display();
+}
+
+function sortByPriceIncr() {
+	var a;
+    var b;
+    var t;
+    
+    for( a = 0 ; a < i - 1 ; a = a + 1 ){
+    	for( b = a + 1 ; b < i ; b = b + 1 ){
+        	if( prices[a] > prices[b] ){
+        		t = malls[a];	malls[a] = malls[b];	malls[b] = t;
+          	  	t = names[a];	names[a] = names[b];	names[b] = t;
+           		t = prodLinks[a];	prodLinks[a] = prodLinks[b];	prodLinks[b] = t;
+            	t = imgLinks[a];	imgLinks[a] = imgLinks[b];	imgLinks[b] = t;
+           		t = prices[a];	prices[a] = prices[b];	prices[b] = t;
+            }
+        }
+    }
+    display();
+}
+
+function sortByNameIncr() {
+	var a;
+    var b;
+    var t;
+    
+    for( a = 0 ; a < i - 1 ; a = a + 1 ){
+    	for( b = a + 1 ; b < i ; b = b + 1 ){
+        	if( names[a] > names[b] ){
+        		t = malls[a];	malls[a] = malls[b];	malls[b] = t;
+          	  	t = names[a];	names[a] = names[b];	names[b] = t;
+           		t = prodLinks[a];	prodLinks[a] = prodLinks[b];	prodLinks[b] = t;
+            	t = imgLinks[a];	imgLinks[a] = imgLinks[b];	imgLinks[b] = t;
+           		t = prices[a];	prices[a] = prices[b];	prices[b] = t;
+            }
+        }
+    }
+    display();
+}
+
+</script>
+
+</body>
+</html>
